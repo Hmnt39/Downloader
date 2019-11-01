@@ -5,6 +5,7 @@ import os, platform
 import time
 import math
 
+'''
 
 def createFolder(directory):
     try:
@@ -12,32 +13,34 @@ def createFolder(directory):
             os.makedirs(directory)
     except OSError:
         print ('Error: Creating directory. ' +  directory)
+'''
 
-
+''' Function to take input Initial Message '''
 def response():
     if platform.system() =='Windows':
         os.system("cls")
     else:
         os.system("clear")
-    print("WELCOME TO THE WEBCANVA YOUTUBE PLAYLIST DOWNLOADER \n Created by Webcanva (webcanva.com)")
+    print("WELCOME TO THE YOUTUBE PLAYLIST DOWNLOADER")
     time.sleep(2)
     print("Choose a downloading mode : \n 1. Single video \n 2. Playlist \n")
     mode = int(input())
-    url = input("Please paste the playlist link : ")
+    url = input("Please paste the playlist or video link : ")
     return url, mode
 
-
+''' Function to print final message '''
 def thanks():
     if platform.system() =='Windows':
         os.system("cls")
     else:
         os.system("clear")
-    print("Thanks for using our software. If you have any suggestions please mail us \n (contact@webcanva.com)" +
+    print("Thanks for using our software" +
           "\n Hemant Kumar Mishra")
     time.sleep(3)
 
 
-def playlist(url_link):
+''' Function to scrap the youtube for playlist link '''
+def linkscrapper(url_link):
     url = urllib.request.urlopen(url_link)
     scrap = bs.BeautifulSoup(url, 'lxml')
     videos = scrap.find_all("a", class_="spf-link playlist-video clearfix yt-uix-sessionlink spf-link")
@@ -49,40 +52,43 @@ def playlist(url_link):
     return video_link
 
 
-def download(url):
-    video_list = playlist(url)
+'''Function to download playlist '''
+def playlist(url):
+    video_list = linkscrapper(url)
     video_count = 0
     length = len(video_list)
     for i in video_list:
         video_count += 1
         yt = YouTube(i)
         stream = yt.streams.first()
-        print("Downloading " + yt.title + "(" + str(math.ceil(stream.filesize/(1024*1024))) + "MB)")
-        video_extension = stream.mime_type.split('/')
+        print("Downloading video(" + str(video_count) + "/" + str(length) + ")" + "(" + str(math.ceil(stream.filesize/(1024*1024))) + "MB)")
+        video_extension = stream.mime_type.split('/')        
+        stream.download()
+        '''  To check if file exists
         file_name = yt.title + "." + video_extension[1]
         if os.path.exists(file_name):
             print("File Exists")
         else:
             stream.download()
-            print("Downloaded (" + str(video_count) + "/" + str(length) + ")")
-    #thanks()
+        '''
 
+''' Function to download single video '''
 def single_video(url):
     yt = YouTube(url)
     stream = yt.streams.first()
-    print("Downloading " + yt.title + "(" + str(math.ceil(stream.filesize/(1024*1024))) + "MB)")
+    print("Downloading video" + "(" + str(math.ceil(stream.filesize/(1024*1024))) + "MB)")
     video_extension = stream.mime_type.split('/')
-    file_name = yt.title + "." + video_extension[1]
+    file_name =  "output." + video_extension[1]
     if os.path.exists(file_name):
         print("File Exists")
     else:
         stream.download()
         print(" Video Downloaded ")
-    thanks()
 
 if __name__ =="__main__":
     url, mode = response()
     if mode == 1: 
         single_video(url)
     if mode == 2:
-        download(url)
+        playlist(url)
+    thanks()
