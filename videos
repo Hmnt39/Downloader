@@ -1,0 +1,6 @@
+#! /bin/bash
+
+echo 'Activating environment'
+. ~/WorkSpace/Environment/videos/bin/activate
+python3 downloader.py
+
