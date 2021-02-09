@@ -4,8 +4,12 @@ from pytube import YouTube
 import os, platform
 import time
 import math
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
-'''
 
 def createFolder(directory):
     try:
@@ -13,7 +17,7 @@ def createFolder(directory):
             os.makedirs(directory)
     except OSError:
         print ('Error: Creating directory. ' +  directory)
-'''
+
 
 ''' Function to take input Initial Message '''
 def response():
@@ -22,7 +26,6 @@ def response():
     else:
         os.system("clear")
     print("WELCOME TO THE YOUTUBE PLAYLIST DOWNLOADER")
-    time.sleep(2)
     print("Choose a downloading mode : \n 1. Single video \n 2. Playlist \n")
     mode = int(input())
     url = input("Please paste the playlist or video link : ")
@@ -30,10 +33,10 @@ def response():
 
 ''' Function to print final message '''
 def thanks():
-    if platform.system() =='Windows':
+    '''if platform.system() =='Windows':
         os.system("cls")
     else:
-        os.system("clear")
+        os.system("clear")'''
     print("Thanks for using our software" +
           "\n Hemant Kumar Mishra")
     time.sleep(3)
@@ -41,9 +44,15 @@ def thanks():
 
 ''' Function to scrap the youtube for playlist link '''
 def linkscrapper(url_link):
-    url = urllib.request.urlopen(url_link)
-    scrap = bs.BeautifulSoup(url, 'lxml')
-    videos = scrap.find_all("a", class_="spf-link playlist-video clearfix yt-uix-sessionlink spf-link")
+    option = webdriver.ChromeOptions()
+    option.add_argument('headless')
+    driver = webdriver.Chrome(options=option)
+    driver.get(url_link)
+    page = driver.page_source
+    driver.quit()
+    scrap = bs.BeautifulSoup(page, 'lxml')
+    #print(scrap)
+    videos = scrap.find_all("a", class_="yt-simple-endpoint style-scope ytd-playlist-panel-video-renderer")
     print(len(videos), " Videos found")
     video_link = []
     link = "https://www.youtube.com"
@@ -57,20 +66,19 @@ def playlist(url):
     video_list = linkscrapper(url)
     video_count = 0
     length = len(video_list)
+    createFolder("Downloads")
     for i in video_list:
         video_count += 1
         yt = YouTube(i)
         stream = yt.streams.first()
         print("Downloading video(" + str(video_count) + "/" + str(length) + ")" + "(" + str(math.ceil(stream.filesize/(1024*1024))) + "MB)")
         video_extension = stream.mime_type.split('/')        
-        stream.download()
-        '''  To check if file exists
+        #stream.download("Downloads/")
         file_name = yt.title + "." + video_extension[1]
         if os.path.exists(file_name):
             print("File Exists")
         else:
-            stream.download()
-        '''
+            stream.download("Downloads/")
 
 ''' Function to download single video '''
 def single_video(url):
