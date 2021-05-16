@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-
+import moviepy.editor as mp
 
 def createFolder(directory):
     try:
@@ -26,19 +26,20 @@ def response():
     else:
         os.system("clear")
     print("WELCOME TO THE YOUTUBE PLAYLIST DOWNLOADER")
-    print("Choose a downloading mode : \n 1. Single video \n 2. Playlist \n")
+    print("Choose a downloading mode : \n 1. Single video \n 2. Playlist \n 3. Video to Audio Convertor \n")
     mode = int(input())
-    url = input("Please paste the playlist or video link : ")
-    return url, mode
+    if mode==3:
+        return mode
+    else:
+        url = input("Please paste the playlist or video link : ")
+        return url, mode
 
 ''' Function to print final message '''
 def thanks():
-    '''if platform.system() =='Windows':
+    if platform.system() =='Windows':
         os.system("cls")
     else:
-        os.system("clear")'''
-    print("Thanks for using our software" +
-          "\n Hemant Kumar Mishra")
+        os.system("clear")
     time.sleep(3)
 
 
@@ -88,15 +89,23 @@ def single_video(url):
     video_extension = stream.mime_type.split('/')
     file_name =  "output." + video_extension[1]
     if os.path.exists(file_name):
-        print("File Exists")
+            print("File Exists")
     else:
-        stream.download()
-        print(" Video Downloaded ")
+        stream.download("Downloads/")
+
+def audio():
+    video_file = input("Please paste the path of video : ")
+    out_file = input()
+    my_clip = mp.VideoFileClip(video_file)
+    my_clip.audio.write_audiofile(out_file+".mp3")
 
 if __name__ =="__main__":
-    url, mode = response()
-    if mode == 1: 
-        single_video(url)
-    if mode == 2:
-        playlist(url)
+    inp = response()
+    #print(type(inp[1]))
+    if inp == 3:
+        audio()
+    elif inp[1] == 1: 
+        single_video(inp[0])
+    elif inp[1] == 2:
+        playlist(inp[0])
     thanks()
